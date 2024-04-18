@@ -11,10 +11,10 @@ import io.flutter.plugin.common.PluginRegistry
 class PermissionManager(private var context: Context, private var activity: Activity?) :
     PluginRegistry.RequestPermissionsResultListener {
 
-        companion object{
-            const val ERROR_PERMISSION_DENIED = "permissionDenied"
-            const val REQUEST_ENABLE_BT = 1337
-        }
+    companion object {
+        const val ERROR_PERMISSION_DENIED = "permissionDenied"
+        const val REQUEST_ENABLE_BT = 1337
+    }
 
     private var lastPermissionRequestCode = 1
     private val callbackForRequestCode = HashMap<Int, ((Boolean, List<String>) -> Unit)>()
@@ -32,8 +32,10 @@ class PermissionManager(private var context: Context, private var activity: Acti
     ): Boolean {
 
         if (requestCode < lastPermissionRequestCode) {
-            val success = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-            val deniedPermissions = permissions.zip(grantResults.asIterable()).filter { it.second == PackageManager.PERMISSION_DENIED }.map { it.first }
+            val success =
+                grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            val deniedPermissions = permissions.zip(grantResults.asIterable())
+                .filter { it.second == PackageManager.PERMISSION_DENIED }.map { it.first }
             val callback = callbackForRequestCode.remove(requestCode)
             callback?.invoke(success, deniedPermissions)
 
@@ -42,7 +44,10 @@ class PermissionManager(private var context: Context, private var activity: Acti
         return false
     }
 
-    fun ensurePermissions(permissions: Array<String>, callback: ((Boolean, List<String>?) -> Unit)){
+    fun ensurePermissions(
+        permissions: Array<String>,
+        callback: ((Boolean, List<String>?) -> Unit)
+    ) {
         val requestCode: Int = lastPermissionRequestCode
         lastPermissionRequestCode++
         callbackForRequestCode[requestCode] = callback
@@ -55,7 +60,7 @@ class PermissionManager(private var context: Context, private var activity: Acti
             }
         }
 
-        if(permissionsNeeded.isEmpty()){
+        if (permissionsNeeded.isEmpty()) {
             callback.invoke(true, null)
             return
         }
@@ -63,14 +68,15 @@ class PermissionManager(private var context: Context, private var activity: Acti
         requestPermissions(requestCode, permissionsNeeded.toTypedArray())
     }
 
-    private fun requestPermissions(requestCode: Int, permissions: Array<String>){
+    private fun requestPermissions(requestCode: Int, permissions: Array<String>) {
 
         pendingRequestCount = permissions.size
         activity?.let {
             ActivityCompat.requestPermissions(
                 it,
                 permissions,
-                requestCode)
+                requestCode
+            )
         }
     }
 

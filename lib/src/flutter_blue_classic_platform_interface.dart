@@ -13,7 +13,8 @@ abstract class FlutterBlueClassicPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FlutterBlueClassicPlatform _instance = MethodChannelFlutterBlueClassic();
+  static FlutterBlueClassicPlatform _instance =
+      MethodChannelFlutterBlueClassic();
 
   /// The default instance of [BlueClassicPlatform] to use.
   ///
