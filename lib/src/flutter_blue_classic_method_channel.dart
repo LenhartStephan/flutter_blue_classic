@@ -18,32 +18,39 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
 
   /// The event channel used to get updates for the adapter state
   @visibleForTesting
-  final EventChannel adapterStateEventChannel = const EventChannel("$namespace/adapterState");
+  final EventChannel adapterStateEventChannel =
+      const EventChannel("$namespace/adapterState");
 
   /// The event channel used to get updates for new discovered devices
   @visibleForTesting
-  final EventChannel scanStateEventChannel = const EventChannel("$namespace/discoveryState");
+  final EventChannel scanStateEventChannel =
+      const EventChannel("$namespace/discoveryState");
 
   /// The event channel used to get updates for new discovered devices
   @visibleForTesting
-  final EventChannel scanResultEventChannel = const EventChannel("$namespace/scanResults");
+  final EventChannel scanResultEventChannel =
+      const EventChannel("$namespace/scanResults");
 
   @override
-  Future<bool> isSupported() async => await methodChannel.invokeMethod<bool>("isSupported") ?? false;
+  Future<bool> isSupported() async =>
+      await methodChannel.invokeMethod<bool>("isSupported") ?? false;
 
   @override
-  Future<bool> isEnabled() async => await methodChannel.invokeMethod<bool>("isEnabled") ?? false;
+  Future<bool> isEnabled() async =>
+      await methodChannel.invokeMethod<bool>("isEnabled") ?? false;
 
   @override
   Future<BluetoothAdapterState> adapterStateNow() async {
     String? state = await methodChannel.invokeMethod<String>("getAdapterState");
-    return BluetoothAdapterState.values.firstWhere((e) => e.name == state, orElse: () => BluetoothAdapterState.unknown);
+    return BluetoothAdapterState.values.firstWhere((e) => e.name == state,
+        orElse: () => BluetoothAdapterState.unknown);
   }
 
   @override
   Stream<BluetoothAdapterState> adapterState() {
     return adapterStateEventChannel.receiveBroadcastStream().map((event) =>
-        BluetoothAdapterState.values.firstWhere((e) => e.name == event, orElse: () => BluetoothAdapterState.unknown));
+        BluetoothAdapterState.values.firstWhere((e) => e.name == event,
+            orElse: () => BluetoothAdapterState.unknown));
   }
 
   @override
@@ -57,15 +64,20 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
 
   @override
   Stream<bool> isScanning() {
-    return scanStateEventChannel.receiveBroadcastStream().map((event) => event == true ? true : false);
+    return scanStateEventChannel
+        .receiveBroadcastStream()
+        .map((event) => event == true ? true : false);
   }
 
   @override
-  Future<bool> isScanningNow() async => await methodChannel.invokeMethod<bool>("isScanningNow") ?? false;
+  Future<bool> isScanningNow() async =>
+      await methodChannel.invokeMethod<bool>("isScanningNow") ?? false;
 
   @override
   Stream<BluetoothDevice> scanResults() {
-    return scanResultEventChannel.receiveBroadcastStream().map((event) => BluetoothDevice.fromMap(event));
+    return scanResultEventChannel
+        .receiveBroadcastStream()
+        .map((event) => BluetoothDevice.fromMap(event));
   }
 
   @override
@@ -75,7 +87,8 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
 
   @override
   void startScan(bool usesFineLocation) {
-    methodChannel.invokeMethod("startScan", {"usesFineLocation": usesFineLocation});
+    methodChannel
+        .invokeMethod("startScan", {"usesFineLocation": usesFineLocation});
   }
 
   @override
@@ -84,13 +97,19 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
   }
 
   @override
-  Future<bool> bondDevice(String address) async =>
-      Platform.isAndroid ? await methodChannel.invokeMethod<bool>("bondDevice", {"address": address}) ?? false : false;
+  Future<bool> bondDevice(String address) async => Platform.isAndroid
+      ? await methodChannel
+              .invokeMethod<bool>("bondDevice", {"address": address}) ??
+          false
+      : false;
 
   @override
   Future<BluetoothConnection?> connect(String address) async {
-    int? id = await methodChannel.invokeMethod<int>("connect", {"address": address});
-    return id != null ? BluetoothConnection.fromConnectionId(id, address) : null;
+    int? id =
+        await methodChannel.invokeMethod<int>("connect", {"address": address});
+    return id != null
+        ? BluetoothConnection.fromConnectionId(id, address)
+        : null;
   }
 
   @override

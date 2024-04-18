@@ -6,8 +6,8 @@ import android.content.Context
 import android.content.Intent
 import io.flutter.plugin.common.EventChannel
 
-class AdapterStateReceiver : EventChannel.StreamHandler{
-    companion object{
+class AdapterStateReceiver : EventChannel.StreamHandler {
+    companion object {
         const val CHANNEL_NAME: String = "${BlueClassicHelper.NAMESPACE}/adapterState"
     }
 
@@ -30,11 +30,13 @@ class AdapterStateReceiver : EventChannel.StreamHandler{
             val adapterState =
                 intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 
-            adapterStateEventSink.let { it?.success(
-                BlueClassicHelper.adapterStateString(
-                    adapterState
+            adapterStateEventSink.let {
+                it?.success(
+                    BlueClassicHelper.adapterStateString(
+                        adapterState
+                    )
                 )
-            ) }
+            }
         }
     }
 }

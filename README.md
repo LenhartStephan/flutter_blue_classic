@@ -50,19 +50,16 @@ In the **android/app/src/main/AndroidManifest.xml** add:
 
 ```xml
 <!-- Permissions for Android 12 or above -->
-<uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-    android:usesPermissionFlags="neverForLocation" /><uses-permission
-android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <!-- legacy for Android 11 or lower -->
-<uses-permission android:name="android.permission.BLUETOOTH"
-android:maxSdkVersion="30" /><uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
-android:maxSdkVersion="30" /><uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
-android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
 
     <!-- legacy for Android 9 or lower -->
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
-android:maxSdkVersion="28" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
 #### With location access
@@ -71,18 +68,16 @@ In the **android/app/src/main/AndroidManifest.xml** add:
 
 ```xml
 <!-- Permissions for Android 12 or above -->
-<uses-permission android:name="android.permission.BLUETOOTH_SCAN" /><uses-permission
-android:name="android.permission.BLUETOOTH_CONNECT" /><uses-permission
-android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- legacy for Android 11 or lower -->
-<uses-permission android:name="android.permission.BLUETOOTH"
-android:maxSdkVersion="30" /><uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
-android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
 
     <!-- legacy for Android 9 or lower -->
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
-android:maxSdkVersion="28" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
 Then pass the `accessFineLocation` parameter when initializing the plugin:

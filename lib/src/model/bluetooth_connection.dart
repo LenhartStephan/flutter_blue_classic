@@ -10,14 +10,16 @@ import '../flutter_blue_classic_platform_interface.dart';
 /// Represents an ongoing Bluetooth connection to a remote device.
 class BluetoothConnection {
   BluetoothConnection.fromConnectionId(this._id, this.address)
-      : _readChannel = EventChannel("${MethodChannelFlutterBlueClassic.namespace}/connection/$_id") {
+      : _readChannel = EventChannel(
+            "${MethodChannelFlutterBlueClassic.namespace}/connection/$_id") {
     _readStreamController = StreamController<Uint8List>();
 
-    _readStreamSubscription = _readChannel.receiveBroadcastStream().cast<Uint8List>().listen(
-          _readStreamController.add,
-          onError: _readStreamController.addError,
-          onDone: close,
-        );
+    _readStreamSubscription =
+        _readChannel.receiveBroadcastStream().cast<Uint8List>().listen(
+              _readStreamController.add,
+              onError: _readStreamController.addError,
+              onDone: close,
+            );
 
     input = _readStreamController.stream;
     output = BluetoothStreamSink(_id);
@@ -25,6 +27,8 @@ class BluetoothConnection {
 
   /// This ID identifies the real BluetoothConenction object on platform side code.
   final int _id;
+
+  /// The Bluetooth-Adress of the remote device.
   final String address;
 
   final EventChannel _readChannel;
@@ -59,7 +63,9 @@ class BluetoothConnection {
     return Future.wait([
       output.close(),
       _readStreamSubscription.cancel(),
-      (!_readStreamController.isClosed) ? _readStreamController.close() : Future.value()
+      (!_readStreamController.isClosed)
+          ? _readStreamController.close()
+          : Future.value()
     ], eagerError: true);
   }
 
@@ -71,7 +77,8 @@ class BluetoothConnection {
 }
 
 /// Helper class for sending data.
-class BluetoothStreamSink implements EventSink<Uint8List>, StreamConsumer<Uint8List> {
+class BluetoothStreamSink
+    implements EventSink<Uint8List>, StreamConsumer<Uint8List> {
   final int _id;
 
   final _instance = FlutterBlueClassicPlatform.instance;
@@ -115,7 +122,8 @@ class BluetoothStreamSink implements EventSink<Uint8List>, StreamConsumer<Uint8L
   /// Unsupported - this output sink cannot pass errors to platform code.
   @override
   void addError(Object error, [StackTrace? stackTrace]) {
-    throw UnsupportedError("BluetoothConnection output (response) sink cannot receive errors!");
+    throw UnsupportedError(
+        "BluetoothConnection output (response) sink cannot receive errors!");
   }
 
   @override
