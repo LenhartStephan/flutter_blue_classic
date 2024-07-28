@@ -404,37 +404,34 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             "Connecting to $address (id: $id)"
         )
 
-        Executors.newSingleThreadExecutor().execute {
-            Handler(Looper.getMainLooper()).post {
-                try {
-                    connection.connect(address)
-                    activityPluginBinding!!.activity.runOnUiThread {
-                        result.success(id)
-                    }
-                } catch (ex: java.lang.Exception) {
-                    activityPluginBinding!!.activity.runOnUiThread {
-                        result.error(
-                            "connect_error",
-                            ex.message, null
-                        )
-                    }
-                    connections.remove(id)
+        val thread = Thread {
+            try {
+                connection.connect(address)
+                activityPluginBinding!!.activity.runOnUiThread {
+                    result.success(id)
                 }
+            } catch (ex: java.lang.Exception) {
+                activityPluginBinding!!.activity.runOnUiThread {
+                    result.error(
+                        "connect_error",
+                        ex.message, null
+                    )
+                }
+                connections.remove(id)
             }
         }
+        thread.start()
     }
 
     private fun write(result: Result, id: Int, bytes: ByteArray) {
         val connection: BluetoothConnection = connections[id]
-        Executors.newSingleThreadExecutor().execute {
-            Handler(Looper.getMainLooper()).post {
-                connection.write(bytes)
-                activityPluginBinding!!.activity.runOnUiThread {
-                    result.success(null)
-                }
+        val thread = Thread {
+            connection.write(bytes)
+            activityPluginBinding!!.activity.runOnUiThread {
+                result.success(null)
             }
         }
-
+        thread.start()
     }
 
     // ------ INNER CLASS ------

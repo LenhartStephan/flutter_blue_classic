@@ -35,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
   StreamSubscription? _scanSubscription;
 
   bool _isScanning = false;
+  int? _connectingToIndex;
   StreamSubscription? _scanningStateSubscription;
 
   @override
@@ -85,7 +86,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FlutterBluePlus example app'),
+        title: const Text('FlutterBlueClassic example app'),
       ),
       body: ListView(
         children: [
@@ -100,19 +101,23 @@ class _MainScreenState extends State<MainScreen> {
           if (scanResults.isEmpty)
             const Center(child: Text("No devices found yet"))
           else
-            for (var result in scanResults)
+            for (var (index, result) in scanResults.indexed)
               ListTile(
                 title: Text("${result.name ?? "???"} (${result.address})"),
                 subtitle: Text(
                     "Bondstate: ${result.bondState.name}, Device type: ${result.type.name}"),
-                trailing: Text("${result.rssi} dBm"),
+                trailing: index == _connectingToIndex
+                    ? const CircularProgressIndicator()
+                    : Text("${result.rssi} dBm"),
                 onTap: () async {
                   BluetoothConnection? connection;
+                  setState(() => _connectingToIndex = index);
                   try {
                     connection =
                         await _flutterBlueClassicPlugin.connect(result.address);
                     if (!this.context.mounted) return;
                     if (connection != null && connection.isConnected) {
+                      if (mounted) setState(() => _connectingToIndex = null);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -120,6 +125,7 @@ class _MainScreenState extends State<MainScreen> {
                                   DeviceScreen(connection: connection!)));
                     }
                   } catch (e) {
+                    if (mounted) setState(() => _connectingToIndex = null);
                     if (kDebugMode) print(e);
                     connection?.dispose();
                     ScaffoldMessenger.maybeOf(context)?.showSnackBar(

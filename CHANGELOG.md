@@ -1,3 +1,6 @@
+## 0.0.3
+* **[Fix]** When connecting to a non-bonded device: The Android bond dialog would trigger an app not responding
+
 ## 0.0.2
 * Added RSSI value, alias name and device type added to BluetoothDevice
 * Scan results und bonded devices are now filtered correctly to only return BL Classic devices
