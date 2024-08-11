@@ -134,6 +134,7 @@ abstract class BluetoothConnection(
         fun write(bytes: ByteArray?) {
             try {
                 output!!.write(bytes)
+                output.flush()
             } catch (e: IOException) {
                 e.printStackTrace()
             }

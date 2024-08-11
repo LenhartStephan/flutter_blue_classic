@@ -114,6 +114,6 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
 
   @override
   Future<void> write(int id, Uint8List data) {
-    return methodChannel.invokeMethod<int>("write", {"id": id, "bytes": data});
+    return methodChannel.invokeMethod<void>("write", {"id": id, "bytes": data});
   }
 }
