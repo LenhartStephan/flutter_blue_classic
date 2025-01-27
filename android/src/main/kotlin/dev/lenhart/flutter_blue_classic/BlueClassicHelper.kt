@@ -41,7 +41,6 @@ class BlueClassicHelper {
             }
         }
 
-        @TargetApi(34)
         @RequiresPermission(value = Manifest.permission.BLUETOOTH_CONNECT)
         fun bluetoothDeviceToMap(
             device: BluetoothDevice,

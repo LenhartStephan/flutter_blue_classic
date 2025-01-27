@@ -92,7 +92,11 @@ abstract class FlutterBlueClassicPlatform extends PlatformInterface {
   }
 
   /// Creates a connection to the device with the given address.
-  Future<BluetoothConnection?> connect(String address) {
+  ///
+  /// You can also pass the service record uuid to lookup RFCOMM channel. If you do not provide one yourself, the
+  /// well-known SPP UUID `00001101-0000-1000-8000-00805F9B34FB` will be used instead. Please make sure the uuid string
+  /// is formated as described here: https://developer.android.com/reference/java/util/UUID#toString()
+  Future<BluetoothConnection?> connect(String address, {String? uuid}) {
     throw UnimplementedError('connect() has not been implemented.');
   }
 

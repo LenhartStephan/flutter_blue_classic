@@ -26,6 +26,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import java.util.UUID
 import java.util.concurrent.Executors
 
 /** FlutterBlueClassicPlugin */
@@ -144,7 +145,11 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             "stopScan" -> stopScan(result)
             "isScanningNow" -> isScanningNow(result)
             "bondDevice" -> bondDevice(result, call.argument<String>("address") ?: "")
-            "connect" -> connect(result, call.argument<String>("address") ?: "")
+            "connect" -> connect(
+                result,
+                call.argument<String>("address") ?: "",
+                call.argument<String>("uuid")
+            )
             "write" -> {
                 val id = call.argument<Int>("id")
                 val bytes = call.argument<ByteArray>("bytes")
@@ -364,7 +369,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
 
 
     @SuppressLint("MissingPermission")
-    private fun connect(result: Result, address: String) {
+    private fun connect(result: Result, address: String, uuid: String?) {
         var permissionSuccess = true
         val permissions = ArrayList<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -396,6 +401,17 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             return
         }
 
+        val connectUuid = try {
+            uuid?.let { UUID.fromString(it) }
+        } catch (ex: Exception) {
+            result.error(
+                "uuid_invalid",
+                "$uuid is not a valid UUID.",
+                null
+            )
+            return
+        }
+
         val id = ++lastConnectionId
         val connection = BluetoothConnectionWrapper(id, bluetoothAdapter!!)
         connections.put(id, connection)
@@ -406,7 +422,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
 
         val thread = Thread {
             try {
-                connection.connect(address)
+                connection.connect(address, connectUuid)
                 activityPluginBinding!!.activity.runOnUiThread {
                     result.success(id)
                 }

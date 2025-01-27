@@ -8,7 +8,7 @@ class FlutterBlueClassic {
   /// Indicates whether your app is using the fine location feature.
   ///
   /// Note that you have to either define the ACCESS_FINE_LOCATION permission and set this [_usesFineLocation] to true or the
-  /// usesPermissionFlags="neverForLocation" on the relevant <uses-permission> manifest tag and set this to false
+  /// usesPermissionFlags="neverForLocation" on the relevant &lt;uses-permission&gt; manifest tag and set this to false
   final bool usesFineLocation;
 
   FlutterBlueClassic({this.usesFineLocation = false});
@@ -53,8 +53,8 @@ class FlutterBlueClassic {
   Future<bool> bondDevice(String address) => _instance.bondDevice(address);
 
   /// Tries to create a connection to the device with the given address.
-  Future<BluetoothConnection?> connect(String address) =>
-      _instance.connect(address);
+  Future<BluetoothConnection?> connect(String address, {String? uuid}) =>
+      _instance.connect(address, uuid: uuid);
 }
 
 /// State of the Bluetooth adapter

@@ -1,6 +1,6 @@
 name: flutter_blue_classic
 description: "A flutter plugin for communicating with bluetooth classic devices"
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/LenhartStephan/flutter_blue_classic
 
 environment:
@@ -15,7 +15,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   plugin:

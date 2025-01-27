@@ -5,7 +5,7 @@ If you want to use an Bluetooth low energy (BLE) device, you might want to
 consider [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus).
 
 <!-- TOC -->
-* [flutter_blue_classic](#flutterblueclassic)
+* [flutter_blue_classic](#flutter_blue_classic)
   * [A note on iOS](#a-note-on-ios)
   * [Getting Started](#getting-started)
     * [minSdkVersion](#minsdkversion)
@@ -13,7 +13,7 @@ consider [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus).
       * [Without location access](#without-location-access)
       * [With location access](#with-location-access)
   * [Reference](#reference)
-    * [FlutterBlueClassic](#flutterblueclassic-1)
+    * [FlutterBlueClassic](#flutterblueclassic)
     * [BluetoothConnection](#bluetoothconnection)
   * [Acknowledgement](#acknowledgement)
 <!-- TOC -->
@@ -21,7 +21,7 @@ consider [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus).
 ## A note on iOS
 
 This plugin is currently only compatible with Android. iOS does not provide a similar interface for
-Bluetooth Classic like Android. On iOS your BL device must
+Bluetooth Classic like Android does. On iOS your BL device must
 be [MFi (Made for iPod/iPhone)](https://mfi.apple.com/en/faqs)
 certified and you will have to use
 the [External Accessory Framework](https://developer.apple.com/documentation/externalaccessory/).

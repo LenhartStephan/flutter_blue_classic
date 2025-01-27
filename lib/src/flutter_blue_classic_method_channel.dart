@@ -104,9 +104,9 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
       : false;
 
   @override
-  Future<BluetoothConnection?> connect(String address) async {
-    int? id =
-        await methodChannel.invokeMethod<int>("connect", {"address": address});
+  Future<BluetoothConnection?> connect(String address, {String? uuid}) async {
+    int? id = await methodChannel
+        .invokeMethod<int>("connect", {"address": address, "uuid": uuid});
     return id != null
         ? BluetoothConnection.fromConnectionId(id, address)
         : null;

@@ -1,3 +1,7 @@
+## 0.0.4
+* Added option to specify a uuid during `connect`
+* Upgraded Java and Gradle Versions
+
 ## 0.0.3
 * **[Fix]** When connecting to a non-bonded device: The Android bond dialog would trigger an app not responding
 
