@@ -150,13 +150,14 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                 call.argument<String>("address") ?: "",
                 call.argument<String>("uuid")
             )
+
             "write" -> {
                 val id = call.argument<Int>("id")
                 val bytes = call.argument<ByteArray>("bytes")
                 if (id != null && bytes != null) {
                     write(result, id, bytes)
                 } else {
-                    result.error("argumentError", "Not all required arguments were specified", null)
+                    result.error(BlueClassicHelper.ERROR_ARGUMENT_MISSING, "Not all required arguments were specified", null)
                 }
             }
 
@@ -177,14 +178,29 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
     }
 
 
+    /**
+     * Checks if the device supports Bluetooth.
+     *
+     * @return True if Bluetooth is supported, false otherwise.
+     */
     private fun checkBluetoothSupport(): Boolean {
-        return context?.packageManager?.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH) ?: false
+        return context?.packageManager?.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH) == true
     }
 
+    /**
+     * Checks if Bluetooth is enabled on the device.
+     *
+     * @return true if Bluetooth is enabled, false otherwise.
+     */
     private fun isBluetoothEnabled(): Boolean {
-        return bluetoothAdapter?.isEnabled ?: false
+        return bluetoothAdapter?.isEnabled == true
     }
 
+    /**
+     * Turns on Bluetooth if it's not already enabled.
+     *
+     * @param result The [Result] object to return the result of the operation.
+     */
     private fun turnOn(result: Result) {
         if (isBluetoothEnabled()) {
             result.success(null)
@@ -211,7 +227,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                 } catch (_: Exception) {
                 }
                 result.error(
-                    PermissionManager.ERROR_PERMISSION_DENIED,
+                    BlueClassicHelper.ERROR_PERMISSION_DENIED,
                     String.format(
                         "Required permission(s) %s denied",
                         deniedPermissions?.joinToString() ?: ""
@@ -222,11 +238,20 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         }
     }
 
+    /**
+     * Retrieves the current state of the Bluetooth adapter as a string.
+     */
     private fun getAdapterState(): String {
         return bluetoothAdapter?.state?.let { BlueClassicHelper.adapterStateString(it) }
             ?: "unavailable"
     }
 
+    /**
+     * Retrieves a list of bonded (paired) Bluetooth devices.
+     *
+     * @param result The [Result] object to return the scanning status.
+     *               Returns the list of bonded devices.
+     */
     @SuppressLint("MissingPermission")
     private fun getBondedDevices(result: Result) {
         val permissions = ArrayList<String>()
@@ -245,7 +270,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                     result.success(devices)
                 } else {
                     result.error(
-                        PermissionManager.ERROR_PERMISSION_DENIED,
+                        BlueClassicHelper.ERROR_PERMISSION_DENIED,
                         String.format(
                             "Required permission(s) %s denied",
                             deniedPermissions?.joinToString() ?: ""
@@ -256,6 +281,15 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         }
     }
 
+    /**
+     * Starts a Bluetooth discovery process.
+     *
+     * @param result The [Result] object to return the scanning status.
+     *               Returns true if discovery started, false otherwise.
+     * @param usesFineLocation A boolean indicating whether ACCESS_FINE_LOCATION permission
+     *                         is required for the scan. This is typically true if the scan
+     *                         needs to derive physical location from Bluetooth beacons.
+     */
     @SuppressLint("MissingPermission")
     private fun startScan(result: Result, usesFineLocation: Boolean) {
         val permissions = ArrayList<String>()
@@ -274,7 +308,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                     result.success(discoveryStartState)
                 } else {
                     result.error(
-                        PermissionManager.ERROR_PERMISSION_DENIED,
+                        BlueClassicHelper.ERROR_PERMISSION_DENIED,
                         String.format(
                             "Required permission(s) %s denied",
                             deniedPermissions?.joinToString() ?: ""
@@ -285,6 +319,12 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         }
     }
 
+    /**
+     * Stops an ongoing Bluetooth device discovery.
+     *
+     * @param result The [Result] object to send the outcome of the operation.
+     *               Returns true if discovery is stopped, false otherwise.
+     */
     @SuppressLint("MissingPermission")
     private fun stopScan(result: Result) {
         val permissions = ArrayList<String>()
@@ -298,7 +338,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                     result.success(bluetoothAdapter?.cancelDiscovery())
                 } else {
                     result.error(
-                        PermissionManager.ERROR_PERMISSION_DENIED,
+                        BlueClassicHelper.ERROR_PERMISSION_DENIED,
                         String.format(
                             "Required permission(s) %s denied",
                             deniedPermissions?.joinToString() ?: ""
@@ -309,6 +349,12 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         }
     }
 
+    /**
+     * Checks if the Bluetooth adapter is currently discovering devices.
+     *
+     * @param result The [Result] object to return the scanning status.
+     *               Returns true if discovering, false otherwise.
+     */
     @SuppressLint("MissingPermission")
     private fun isScanningNow(result: Result) {
         val permissions = ArrayList<String>()
@@ -322,7 +368,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                     result.success(bluetoothAdapter?.isDiscovering ?: false)
                 } else {
                     result.error(
-                        PermissionManager.ERROR_PERMISSION_DENIED,
+                        BlueClassicHelper.ERROR_PERMISSION_DENIED,
                         String.format(
                             "Required permission(s) %s denied",
                             deniedPermissions?.joinToString() ?: ""
@@ -333,6 +379,13 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         }
     }
 
+    /**
+     * Attempts to bond (pair) with a Bluetooth device.
+     *
+     * @param result The [Result] object to return the outcome of the bonding attempt.
+     *               Returns true if bonding is initiated, false otherwise.
+     * @param address The MAC address of the Bluetooth device to bond with.
+     */
     @SuppressLint("MissingPermission")
     private fun bondDevice(result: Result, address: String) {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
@@ -353,10 +406,10 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             run {
                 if (success) {
                     val device = bluetoothAdapter?.getRemoteDevice(address)
-                    result.success(device?.createBond() ?: false)
+                    result.success(device?.createBond() == true)
                 } else {
                     result.error(
-                        PermissionManager.ERROR_PERMISSION_DENIED,
+                        BlueClassicHelper.ERROR_PERMISSION_DENIED,
                         String.format(
                             "Required permission(s) %s denied",
                             deniedPermissions?.joinToString() ?: ""
@@ -368,6 +421,18 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
     }
 
 
+    /**
+     * Connects to a Bluetooth device.
+     *
+     * This function attempts to establish a connection with a Bluetooth device specified by its MAC address.
+     * If a UUID is provided, it attempts to parse it. An invalid UUID will result in an error.
+     * A new connection ID is generated, and a [BluetoothConnectionWrapper] is created and stored.
+     *
+     * @param result The [Result] object to report success or failure of the connection attempt.
+     *               Returns the id of the new connection.
+     * @param address The MAC address of the Bluetooth device to connect to.
+     * @param uuid An optional UUID string for the service to connect to. If null, a default or pre-configured UUID might be used by the underlying connection mechanism.
+     */
     @SuppressLint("MissingPermission")
     private fun connect(result: Result, address: String, uuid: String?) {
         var permissionSuccess = true
@@ -380,7 +445,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         permissionManager.ensurePermissions(permissions.toTypedArray()) { success: Boolean, deniedPermissions: List<String>? ->
             if (!success) {
                 result.error(
-                    PermissionManager.ERROR_PERMISSION_DENIED,
+                    BlueClassicHelper.ERROR_PERMISSION_DENIED,
                     String.format(
                         "Required permission(s) %s denied",
                         deniedPermissions?.joinToString() ?: ""
@@ -403,9 +468,9 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
 
         val connectUuid = try {
             uuid?.let { UUID.fromString(it) }
-        } catch (ex: Exception) {
+        } catch (_: Exception) {
             result.error(
-                "uuid_invalid",
+                BlueClassicHelper.ERROR_UUID_INVALID,
                 "$uuid is not a valid UUID.",
                 null
             )
@@ -420,7 +485,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             "Connecting to $address (id: $id)"
         )
 
-        val thread = Thread {
+        Thread {
             try {
                 connection.connect(address, connectUuid)
                 activityPluginBinding!!.activity.runOnUiThread {
@@ -429,25 +494,54 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             } catch (ex: java.lang.Exception) {
                 activityPluginBinding!!.activity.runOnUiThread {
                     result.error(
-                        "connect_error",
+                        BlueClassicHelper.ERROR_COULD_NOT_CONNECT,
                         ex.message, null
                     )
                 }
                 connections.remove(id)
             }
-        }
-        thread.start()
+        }.also { it.start() }
     }
 
+    /**
+     * Writes [bytes] to the connection identified by [id].
+     *
+     * @param result The [Result] object to report result of the operation.
+     *
+     * @param id The id of the Bluetooth connection.
+     * @param bytes The [ByteArray] to be written to the connection.
+     */
     private fun write(result: Result, id: Int, bytes: ByteArray) {
-        val connection: BluetoothConnection = connections[id]
-        val thread = Thread {
-            connection.write(bytes)
+        val connection: BluetoothConnection =
+        try {
+            connections.get(id) ?: throw Exception("Connection with id $id does not exist.")
+        } catch (_: Exception) {
             activityPluginBinding!!.activity.runOnUiThread {
-                result.success(null)
+                result.error(
+                    BlueClassicHelper.ERROR_CONNECTION_INVALID,
+                    "The connection with id $id does not exist.",
+                    null
+                )
+            }
+            return
+        }
+            Thread {
+                try {
+                connection.write(bytes)
+                activityPluginBinding!!.activity.runOnUiThread {
+                    result.success(null)
+                }
+            } catch (e: Exception) {
+            Log.e(TAG, "Error during write. Connection might have closed.", e)
+            activityPluginBinding!!.activity.runOnUiThread {
+                result.error(
+                    BlueClassicHelper.ERROR_WRITE_FAILED,
+                    "Error during write occurred. Connection might have closed.",
+                    null
+                )
             }
         }
-        thread.start()
+            }.also { it.start() }
     }
 
     // ------ INNER CLASS ------
@@ -464,38 +558,56 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             readChannel.setStreamHandler(this)
         }
 
-        override fun onRead(data: ByteArray?) {
+        /**
+         * Callback for reading data.
+         * This function is called when data is received from the connected Bluetooth device.
+         * This method sends the received data to flutter.
+         *
+         * @param data The byte array containing the received data.
+         */
+        override fun onRead(data: ByteArray) {
             activityPluginBinding?.activity?.runOnUiThread {
-                if (readSink != null) {
-                    readSink?.success(data)
-                }
+                readSink?.success(data)
             }
         }
 
+        /**
+         * Callback for disconnection.
+         *
+         * This method is called when the Bluetooth connection is terminated.
+         *
+         * @param byRemote `true` if the disconnection was initiated by the remote device,
+         *                 `false` if it was initiated locally (e.g., by calling [disconnect]).
+         */
         override fun onDisconnected(byRemote: Boolean) {
             activityPluginBinding?.activity?.runOnUiThread {
                 if (byRemote) {
-                    Log.d(
-                        TAG,
-                        "onDisconnected by remote (id: $id)"
-                    )
-                    if (readSink != null) {
-                        readSink?.endOfStream()
-                        readSink = null
-                    }
+                    Log.d(TAG, "onDisconnected by remote (id: $id)")
+                    readSink?.endOfStream()
+                    readSink = null
                 } else {
-                    Log.d(
-                        TAG,
-                        "onDisconnected by local (id: $id)"
-                    )
+                    Log.d(TAG, "onDisconnected by local (id: $id)")
                 }
             }
         }
 
+        /**
+         * Called when the event channel is first listened to.
+         * It receives the [readSink] for sending received data to flutter.
+         *
+         * @param obj Arbitrary arguments for the stream, can be null.
+         * @param eventSink The [EventSink] to which events are sent.
+         */
         override fun onListen(obj: Any?, eventSink: EventSink) {
             readSink = eventSink
         }
 
+        /**
+         * Called when the connection is closed from the Flutter side.
+         *
+         * It disconnects the Bluetooth connection, sets the stream handler to null,
+         * removes the connection from the `connections` map, and logs the disconnection.
+         */
         override fun onCancel(obj: Any?) {
             this.disconnect()
 

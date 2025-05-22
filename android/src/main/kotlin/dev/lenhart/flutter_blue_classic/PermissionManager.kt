@@ -12,7 +12,6 @@ class PermissionManager(private var context: Context, private var activity: Acti
     PluginRegistry.RequestPermissionsResultListener {
 
     companion object {
-        const val ERROR_PERMISSION_DENIED = "permissionDenied"
         const val REQUEST_ENABLE_BT = 1337
     }
 

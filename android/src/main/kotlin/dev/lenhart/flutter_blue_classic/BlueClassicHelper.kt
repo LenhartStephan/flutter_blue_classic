@@ -11,6 +11,12 @@ class BlueClassicHelper {
         const val NAMESPACE: String = "blue_classic"
         const val METHOD_CHANNEL_NAME: String = "$NAMESPACE/methods"
         const val ERROR_ADDRESS_INVALID: String = "addressInvalid"
+        const val ERROR_UUID_INVALID: String = "uuidInvalid"
+        const val ERROR_CONNECTION_INVALID: String = "connectionInvalid"
+        const val ERROR_COULD_NOT_CONNECT: String = "couldNotConnect"
+        const val ERROR_WRITE_FAILED: String = "writeFailed"
+        const val ERROR_ARGUMENT_MISSING: String = "argumentMissing"
+        const val ERROR_PERMISSION_DENIED = "permissionDenied"
 
         fun adapterStateString(state: Int): String {
             return when (state) {

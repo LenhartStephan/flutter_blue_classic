@@ -1,9 +1,12 @@
+## 0.0.5
+* **[Fix]** App could crash, when trying to write while the connection is/will be closed. #10
+ 
 ## 0.0.4
 * Added option to specify a uuid during `connect`
 * Upgraded Java and Gradle Versions
 
 ## 0.0.3
-* **[Fix]** When connecting to a non-bonded device: The Android bond dialog would trigger an app not responding
+* **[Fix]** When connecting to a non-bonded device: The Android bond dialog would trigger an app not responding #2
 
 ## 0.0.2
 * Added RSSI value, alias name and device type added to BluetoothDevice
