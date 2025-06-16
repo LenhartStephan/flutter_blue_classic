@@ -187,6 +187,7 @@ abstract class BluetoothConnection(
             }
             requestedClosing = true
             interrupt()
+            closeResources()
         }
 
 
