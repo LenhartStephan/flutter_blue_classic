@@ -1,6 +1,9 @@
+## 0.0.6
+* **[Fix]** When calling close, the connection was not properly closed. #12
+
 ## 0.0.5
 * **[Fix]** App could crash, when trying to write while the connection is/will be closed. #10
- 
+
 ## 0.0.4
 * Added option to specify a uuid during `connect`
 * Upgraded Java and Gradle Versions
