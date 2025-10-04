@@ -492,7 +492,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                     result.success(id)
                 }
             } catch (ex: java.lang.Exception) {
-                activityPluginBinding!!.activity.runOnUiThread {
+                activityPluginBinding?.activity?.runOnUiThread {
                     result.error(
                         BlueClassicHelper.ERROR_COULD_NOT_CONNECT,
                         ex.message, null
@@ -516,7 +516,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         try {
             connections.get(id) ?: throw Exception("Connection with id $id does not exist.")
         } catch (_: Exception) {
-            activityPluginBinding!!.activity.runOnUiThread {
+            activityPluginBinding?.activity?.runOnUiThread {
                 result.error(
                     BlueClassicHelper.ERROR_CONNECTION_INVALID,
                     "The connection with id $id does not exist.",
@@ -533,7 +533,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                 }
             } catch (e: Exception) {
             Log.e(TAG, "Error during write. Connection might have closed.", e)
-            activityPluginBinding!!.activity.runOnUiThread {
+            activityPluginBinding?.activity?.runOnUiThread {
                 result.error(
                     BlueClassicHelper.ERROR_WRITE_FAILED,
                     "Error during write occurred. Connection might have closed.",
