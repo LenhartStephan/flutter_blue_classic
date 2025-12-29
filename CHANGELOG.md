@@ -1,3 +1,6 @@
+## 0.0.8
+* **[FIX]** Fixes an error that could lead to a crash when requesting permissions 
+
 ## 0.0.7
 * **[Fix]** Fixes an Null pointer exception when the app is closed while the connection is going down #14
 
