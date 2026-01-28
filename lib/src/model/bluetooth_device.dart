@@ -21,13 +21,17 @@ class BluetoothDevice {
   /// Bonding state of the device.
   final BluetoothBondState bondState;
 
+  /// The UUIDs supported by the device.
+  final List<String> uuids;
+
   BluetoothDevice._(
       {required this.address,
       this.name = "",
       this.alias,
       this.type = BluetoothDeviceType.unknown,
       this.rssi,
-      this.bondState = BluetoothBondState.none});
+      this.bondState = BluetoothBondState.none,
+      this.uuids = const []});
   factory BluetoothDevice.fromMap(Map map) => BluetoothDevice._(
       name: map["name"],
       alias: map["alias"],
@@ -38,7 +42,8 @@ class BluetoothDevice {
       rssi: map["rssi"],
       bondState: BluetoothBondState.values.firstWhere(
           (e) => e.name == map["bondState"],
-          orElse: () => BluetoothBondState.none));
+          orElse: () => BluetoothBondState.none),
+      uuids: List<String>.from(map["uuids"] ?? []));
 
   @override
   operator ==(Object other) {
