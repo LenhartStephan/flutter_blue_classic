@@ -61,6 +61,7 @@ class BlueClassicHelper {
             entry["bondState"] = bondStateString(device.bondState)
             entry["deviceType"] = deviceTypeString(device.type)
             entry["rssi"] = rssi
+            entry["uuids"] = device.uuids?.map { it.toString() } ?: emptyList<String>()
             return entry
         }
     }
