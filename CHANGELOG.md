@@ -1,5 +1,8 @@
+## 0.0.9
+* Added the supported features (UUIDs) to BluetoothDevice #19 (thanks @oakamil)
+
 ## 0.0.8
-* **[FIX]** Fixes an error that could lead to a crash when requesting permissions 
+* **[FIX]** Fixes an error that could lead to a crash when requesting permissions
 
 ## 0.0.7
 * **[Fix]** Fixes an Null pointer exception when the app is closed while the connection is going down #14
@@ -18,7 +21,7 @@
 * **[Fix]** When connecting to a non-bonded device: The Android bond dialog would trigger an app not responding #2
 
 ## 0.0.2
-* Added RSSI value, alias name and device type added to BluetoothDevice
+* Added RSSI value, alias name and device type to BluetoothDevice
 * Scan results und bonded devices are now filtered correctly to only return BL Classic devices
 * Example app updated: Tap on a scan result to connect to it and send and receive messages.
 
