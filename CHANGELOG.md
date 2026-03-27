@@ -1,3 +1,6 @@
+## 0.1.0
+* `turnOn()` now returns whether the user has accepted the request to activate BL
+
 ## 0.0.9
 * Added the supported features (UUIDs) to BluetoothDevice #19 (thanks @oakamil)
 

@@ -17,6 +17,7 @@ class BlueClassicHelper {
         const val ERROR_WRITE_FAILED: String = "writeFailed"
         const val ERROR_ARGUMENT_MISSING: String = "argumentMissing"
         const val ERROR_PERMISSION_DENIED = "permissionDenied"
+        const val ERROR_UNKNOWN = "unknown"
 
         fun adapterStateString(state: Int): String {
             return when (state) {

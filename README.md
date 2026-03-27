@@ -102,7 +102,7 @@ final blueClassic = FlutterBlueClassic(usesFineLocation: true);
 | isScanningNow   | Checks whether the Bluetooth adapter is currently scanning.        |
 | isScanning      | Stream whether the device is scanning for BL devices.              |
 | scanResults     | Stream of found devices during scan                                |
-| turnOn          | Requests to turns the bluetooth adapter on                         |
+| turnOn          | Requests to turn the bluetooth adapter on                          |
 | bondDevice      | Requests to create a bond with a bluetooth device                  |
 | connect         | Tries to connect with a bluetooth device                           |
 

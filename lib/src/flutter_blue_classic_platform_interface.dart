@@ -70,7 +70,7 @@ abstract class FlutterBlueClassicPlatform extends PlatformInterface {
   }
 
   /// Turns bluetooth on
-  void turnOn() {
+  Future<bool> turnOn() {
     throw UnimplementedError('turnOn() has not been implemented.');
   }
 

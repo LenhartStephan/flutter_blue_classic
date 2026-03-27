@@ -2,6 +2,7 @@ package dev.lenhart.flutter_blue_classic
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -55,6 +56,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
     private lateinit var discoveryStateReceiver: DiscoveryStateReceiver
 
     private lateinit var permissionManager: PermissionManager
+    private val activityResultManager = ActivityResultManager()
     private var bluetoothAdapter: BluetoothAdapter? = null
 
     private val connections = SparseArray<BluetoothConnectionWrapper>(2)
@@ -118,10 +120,12 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         activityPluginBinding = binding
         permissionManager = PermissionManager(context!!.applicationContext, binding.activity)
         binding.addRequestPermissionsResultListener(permissionManager)
+        binding.addActivityResultListener(activityResultManager)
     }
 
     override fun onDetachedFromActivity() {
         activityPluginBinding?.removeRequestPermissionsResultListener(permissionManager)
+        activityPluginBinding?.removeActivityResultListener(activityResultManager)
         activityPluginBinding = null
         permissionManager.setActivity(null)
     }
@@ -203,7 +207,7 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
      */
     private fun turnOn(result: Result) {
         if (isBluetoothEnabled()) {
-            result.success(null)
+            result.success(true)
             return
         }
         val permissions = ArrayList<String>()
@@ -212,8 +216,15 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         }
         permissionManager.ensurePermissions(permissions.toTypedArray()) { success: Boolean, deniedPermissions: List<String>? ->
             run {
-                try {
-                    if (success) {
+                if (success) {
+                    activityResultManager.setResultCallback { requestCode, resultCode, _ ->
+                        if (requestCode == PermissionManager.REQUEST_ENABLE_BT) {
+                            activityResultManager.setResultCallback(null)
+                            result.success(resultCode == Activity.RESULT_OK)
+                        }
+                    }
+
+                    try {
                         val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                         startActivityForResult(
                             activityPluginBinding!!.activity,
@@ -221,19 +232,19 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
                             PermissionManager.REQUEST_ENABLE_BT,
                             null
                         )
-                        result.success(null)
-                        return@run
+                    } catch (e: Exception) {
+                        activityResultManager.setResultCallback(null)
+                        result.error(BlueClassicHelper.ERROR_UNKNOWN, e.message, null)
                     }
-                } catch (_: Exception) {
+                } else {
+                    result.error(
+                        BlueClassicHelper.ERROR_PERMISSION_DENIED,
+                        String.format(
+                            "Required permission(s) %s denied",
+                            deniedPermissions?.joinToString() ?: ""
+                        ), null
+                    )
                 }
-                result.error(
-                    BlueClassicHelper.ERROR_PERMISSION_DENIED,
-                    String.format(
-                        "Required permission(s) %s denied",
-                        deniedPermissions?.joinToString() ?: ""
-                    ), null
-                )
-
             }
         }
     }

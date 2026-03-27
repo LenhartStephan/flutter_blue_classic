@@ -81,9 +81,9 @@ class MethodChannelFlutterBlueClassic extends FlutterBlueClassicPlatform {
   }
 
   @override
-  void turnOn() {
-    if (Platform.isAndroid) methodChannel.invokeMethod("turnOn");
-  }
+  Future<bool> turnOn() async => (Platform.isAndroid)
+      ? await methodChannel.invokeMethod<bool>("turnOn") ?? false
+      : false;
 
   @override
   void startScan(bool usesFineLocation) {

@@ -45,7 +45,7 @@ class FlutterBlueClassic {
   Stream<BluetoothDevice> get scanResults => _instance.scanResults();
 
   /// Requests to turns the bluetooth adapter on.
-  void turnOn() => _instance.turnOn();
+  Future<bool> turnOn() => _instance.turnOn();
 
   /// Tries to create a bond to the device with the given address.
   ///
