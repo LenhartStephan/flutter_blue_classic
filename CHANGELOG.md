@@ -1,3 +1,6 @@
+## 0.1.1
+* Migrated to build-in Kotlin #22
+
 ## 0.1.0
 * `turnOn()` now returns whether the user has accepted the request to activate BL
 
@@ -29,5 +32,4 @@
 * Example app updated: Tap on a scan result to connect to it and send and receive messages.
 
 ## 0.0.1
-
 * Initial release: Scan for and connect to BL Classic devices.
