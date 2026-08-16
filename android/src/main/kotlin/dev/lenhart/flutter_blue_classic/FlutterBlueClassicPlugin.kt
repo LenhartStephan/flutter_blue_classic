@@ -28,7 +28,9 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.util.UUID
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 /** FlutterBlueClassicPlugin */
 class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -60,7 +62,8 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
     private var bluetoothAdapter: BluetoothAdapter? = null
 
     private val connections = SparseArray<BluetoothConnectionWrapper>(2)
-    private var lastConnectionId = 0
+    private var lastConnectionId = AtomicInteger(0)
+    private val connectionExecutor: ExecutorService = Executors.newCachedThreadPool()
 
     private var context: Application? = null
 
@@ -179,6 +182,8 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         binding.applicationContext.unregisterReceiver(adapterStateReceiver.mBluetoothAdapterStateReceiver)
         binding.applicationContext.unregisterReceiver(scanResultReceiver.scanResultReceiver)
         binding.applicationContext.unregisterReceiver(discoveryStateReceiver.discoveryStateReceiver)
+
+        connectionExecutor.shutdownNow()
     }
 
 
@@ -446,27 +451,11 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
      */
     @SuppressLint("MissingPermission")
     private fun connect(result: Result, address: String, uuid: String?) {
-        var permissionSuccess = true
-        val permissions = ArrayList<String>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
-            permissions.add(Manifest.permission.BLUETOOTH_SCAN)
+        val adapter = bluetoothAdapter
+        if (adapter == null) {
+            result.error(BlueClassicHelper.ERROR_UNKNOWN, "Bluetooth adapter not available", null)
+            return
         }
-
-        permissionManager.ensurePermissions(permissions.toTypedArray()) { success: Boolean, deniedPermissions: List<String>? ->
-            if (!success) {
-                result.error(
-                    BlueClassicHelper.ERROR_PERMISSION_DENIED,
-                    String.format(
-                        "Required permission(s) %s denied",
-                        deniedPermissions?.joinToString() ?: ""
-                    ), null
-                )
-            }
-            permissionSuccess = success
-        }
-
-        if (!permissionSuccess) return
 
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             result.error(
@@ -488,30 +477,45 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
             return
         }
 
-        val id = ++lastConnectionId
-        val connection = BluetoothConnectionWrapper(id, bluetoothAdapter!!)
-        connections.put(id, connection)
-        Log.d(
-            TAG,
-            "Connecting to $address (id: $id)"
-        )
+        val permissions = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
 
-        Thread {
-            try {
-                connection.connect(address, connectUuid)
-                activityPluginBinding!!.activity.runOnUiThread {
-                    result.success(id)
-                }
-            } catch (ex: java.lang.Exception) {
-                activityPluginBinding?.activity?.runOnUiThread {
-                    result.error(
-                        BlueClassicHelper.ERROR_COULD_NOT_CONNECT,
-                        ex.message, null
-                    )
-                }
-                connections.remove(id)
+        permissionManager.ensurePermissions(permissions.toTypedArray()) { success: Boolean, deniedPermissions: List<String>? ->
+            if (!success) {
+                result.error(
+                    BlueClassicHelper.ERROR_PERMISSION_DENIED,
+                    "Required permission(s) ${deniedPermissions?.joinToString() ?: ""} denied",
+                    null
+                )
+                return@ensurePermissions
             }
-        }.also { it.start() }
+
+            val id = lastConnectionId.incrementAndGet()
+            val connection = BluetoothConnectionWrapper(id, adapter)
+            connections.put(id, connection)
+
+            Log.d(TAG, "Connecting to $address (id: $id)")
+
+            connectionExecutor.execute {
+                try {
+                    connection.connect(address, connectUuid)
+                    activityPluginBinding?.activity?.runOnUiThread {
+                        result.success(id)
+                    }
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Connection failed to $address", ex)
+                    activityPluginBinding?.activity?.runOnUiThread {
+                        connections.remove(id)
+                        result.error(
+                            BlueClassicHelper.ERROR_COULD_NOT_CONNECT,
+                            ex.message, null
+                        )
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -523,36 +527,34 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
      * @param bytes The [ByteArray] to be written to the connection.
      */
     private fun write(result: Result, id: Int, bytes: ByteArray) {
-        val connection: BluetoothConnection =
-        try {
+        val connection = try {
             connections.get(id) ?: throw Exception("Connection with id $id does not exist.")
-        } catch (_: Exception) {
-            activityPluginBinding?.activity?.runOnUiThread {
-                result.error(
-                    BlueClassicHelper.ERROR_CONNECTION_INVALID,
-                    "The connection with id $id does not exist.",
-                    null
-                )
-            }
+        } catch (e: Exception) {
+            result.error(
+                BlueClassicHelper.ERROR_CONNECTION_INVALID,
+                e.message,
+                null
+            )
             return
         }
-            Thread {
-                try {
+
+        connectionExecutor.execute {
+            try {
                 connection.write(bytes)
-                activityPluginBinding!!.activity.runOnUiThread {
+                activityPluginBinding?.activity?.runOnUiThread {
                     result.success(null)
                 }
             } catch (e: Exception) {
-            Log.e(TAG, "Error during write. Connection might have closed.", e)
-            activityPluginBinding?.activity?.runOnUiThread {
-                result.error(
-                    BlueClassicHelper.ERROR_WRITE_FAILED,
-                    "Error during write occurred. Connection might have closed.",
-                    null
-                )
+                Log.e(TAG, "Error during write. Connection might have closed.", e)
+                activityPluginBinding?.activity?.runOnUiThread {
+                    result.error(
+                        BlueClassicHelper.ERROR_WRITE_FAILED,
+                        "Error during write occurred: ${e.message}",
+                        null
+                    )
+                }
             }
         }
-            }.also { it.start() }
     }
 
     // ------ INNER CLASS ------
@@ -622,14 +624,11 @@ class FlutterBlueClassicPlugin : FlutterPlugin, MethodCallHandler, ActivityAware
         override fun onCancel(obj: Any?) {
             this.disconnect()
 
-            Executors.newSingleThreadExecutor().execute {
+            connectionExecutor.execute {
                 Handler(Looper.getMainLooper()).post {
                     readChannel.setStreamHandler(null)
                     connections.remove(id)
-                    Log.d(
-                        TAG,
-                        "Disconnected (id: $id)"
-                    )
+                    Log.d(TAG, "Disconnected (id: $id)")
                 }
             }
         }

@@ -1,3 +1,6 @@
+## 0.1.2
+* **[FIX]** Fixes an incorrect permission check on `connect()` #23
+
 ## 0.1.1
 * Migrated to build-in Kotlin #22
 
@@ -11,7 +14,7 @@
 * **[FIX]** Fixes an error that could lead to a crash when requesting permissions
 
 ## 0.0.7
-* **[Fix]** Fixes an Null pointer exception when the app is closed while the connection is going down #14
+* **[Fix]** Fixes a Null pointer exception when the app is closed while the connection is going down #14
 
 ## 0.0.6
 * **[Fix]** When calling close, the connection was not properly closed. #12
