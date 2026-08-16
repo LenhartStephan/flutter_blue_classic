@@ -22,10 +22,10 @@ A clear and concise description of what you expected to happen.
 **Your device details (please complete the following information):**
  - OS version of the device running your app: [e.g. Android 13]
 
-**Connection details/Remove device (please complete the following information):**
+**Connection details/Remote device (please complete the following information):**
  - Remote device: [The device you're trying to connect to]
- - Remove device software: [e.g. Label printer firmware, custom python script; Android App XYZ; Please add an example or Link to the Bluetooth server software]
-The remove device must await a connection, the software awaiting this connection is called a Bluetooth Server.
+ - Remote device software: [e.g. Label printer firmware, custom python script; Android App XYZ; Please add an example or Link to the Bluetooth server software]
+The remote device must await a connection, the software awaiting this connection is called a Bluetooth Server.
 
 **Additional context**
 Add any other context about the problem here, if applicable.
