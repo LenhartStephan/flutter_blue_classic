@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
+import dev.lenhart.flutter_blue_classic.FlutterBlueClassicPlugin.Companion.TAG
 import io.flutter.plugin.common.EventChannel
 
 class ScanResultReceiver : EventChannel.StreamHandler {
@@ -40,12 +42,14 @@ class ScanResultReceiver : EventChannel.StreamHandler {
             val rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE)
 
             if (device != null && device.type != BluetoothDevice.DEVICE_TYPE_LE) {
-                adapterStateEventSink.let {
-                    it?.success(
+                try {
+                    adapterStateEventSink?.success(
                         BlueClassicHelper.bluetoothDeviceToMap(
                             device, rssi
                         )
                     )
+                } catch (e: SecurityException) {
+                    Log.w(TAG, "Missing permission to read scan result for device ${device.address}", e)
                 }
             }
         }
